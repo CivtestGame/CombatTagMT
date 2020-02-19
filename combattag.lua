@@ -44,12 +44,47 @@ minetest.register_on_punchplayer(
       combat_tag.tag(hitter, COMBAT_TAG_TIMER)
 end)
 
+local function combatlog_effect(player)
+   local ppos = player:get_pos()
+
+   local offset = 0
+
+   for i = 0, 10, 1 do
+      offset = offset + 0.1
+      local neopos = vector.new(
+         ppos.x + math.random(-0.1, 0.1),
+         ppos.y + offset,
+         ppos.z + math.random(-0.1,0.1)
+      )
+      minetest.add_particle({
+            pos = neopos,
+            velocity = {
+               x = math.random(-0.2, 0.2),
+               y = math.random(-0.2, 0.2),
+               z = math.random(-0.2, 0.2)
+            },
+            acceleration = { x = 0, y =-0.25, z = 0 },
+            expirationtime = 5,
+            size = 4,
+            collisiondetection = true,
+            vertical = false,
+            texture = "^[colorize:#dd2222"
+      })
+   end
+   minetest.sound_play(
+      "tnt_explode",
+      {
+         pos = ppos,
+         max_hear_distance = 100,
+         gain = 10.0,
+      }
+   )
+end
+
 minetest.register_on_leaveplayer(function(player)
       local pname = player:get_player_name()
-
       if combat_tag.get_tag(player) then
-         -- TODO: temporary, need a better combat log effect...
-         minetest.chat_send_all(pname .. " combat logged!")
+         combatlog_effect(player)
          player:set_hp(0) -- RIP
       end
 end)
