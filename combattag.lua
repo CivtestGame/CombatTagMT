@@ -44,6 +44,12 @@ minetest.register_on_punchplayer(
       combat_tag.tag(hitter, COMBAT_TAG_TIMER)
 end)
 
+minetest.register_on_joinplayer(function(player)
+      if player:get_hp() > 0 then
+         combat_tag.tag(player, COMBAT_TAG_TIMER)
+      end
+end)
+
 local function combatlog_effect(player)
    local ppos = player:get_pos()
 
