@@ -1,7 +1,7 @@
 
 -- CombatTag
 
-local COMBAT_TAG_TIMER = 10
+local COMBAT_TAG_TIMER = 30
 
 function combat_tag.get_tag(player)
    local meta = player:get_meta()
@@ -14,7 +14,7 @@ function combat_tag.get_tag(player)
    if current_time > tag_end then
       return nil
    else
-      return tag_end
+      return tag_end - current_time
    end
 end
 
@@ -94,3 +94,27 @@ minetest.register_on_leaveplayer(function(player)
          player:set_hp(0) -- RIP
       end
 end)
+
+minetest.register_chatcommand(
+   "ct",
+   {
+      description = "Displays the sender's combat tag duration.",
+      params = "",
+      func = function(name)
+         local player = minetest.get_player_by_name(name)
+         if not player then
+            return false
+         end
+         local tag = combat_tag.get_tag(player)
+         if tag then
+            minetest.chat_send_player(
+               name, "You are combat tagged for another "
+                  .. tostring(tag) .. "s."
+            )
+         else
+            minetest.chat_send_player(name, "You are not combat tagged.")
+         end
+         return true
+      end
+   }
+)
