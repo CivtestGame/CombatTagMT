@@ -39,14 +39,17 @@ minetest.register_on_punchplayer(
       if target:get_hp() == 0 then
          return
       end
-
-      combat_tag.tag(target, COMBAT_TAG_TIMER)
-      combat_tag.tag(hitter, COMBAT_TAG_TIMER)
+      if minetest.is_player(target) then
+         combat_tag.tag(target, COMBAT_TAG_TIMER)
+      end
+      if minetest.is_player(hitter) then
+         combat_tag.tag(hitter, COMBAT_TAG_TIMER)
+      end
 end)
 
 minetest.register_on_joinplayer(function(player)
       if player:get_hp() > 0 then
-         combat_tag.tag(player, COMBAT_TAG_TIMER)
+         combat_tag.tag(player, 5)
       end
 end)
 
