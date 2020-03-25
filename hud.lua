@@ -5,26 +5,37 @@ local tag_hud_bar = {}
 
 local X_OFFSET_SPACE = -180
 
+function combat_tag.remove_hud(player)
+   local pname = player:get_player_name()
+
+   local _
+   _ = tag_hud_title[pname] and player:hud_remove(tag_hud_title[pname])
+   _ = tag_hud_bg[pname] and player:hud_remove(tag_hud_bg[pname])
+   _ = tag_hud_bar[pname] and player:hud_remove(tag_hud_bar[pname])
+
+   tag_hud_title[pname] = nil
+   tag_hud_bg[pname] = nil
+   tag_hud_bar[pname] = nil
+end
+
+minetest.register_on_leaveplayer(function(player)
+      combat_tag.remove_hud(player)
+end)
+
 function combat_tag.update_hud(player)
    local pname = player:get_player_name()
 
    local tag = combat_tag.get_tag(player)
    local max_tag = combat_tag.COMBAT_TAG_TIMER
 
+   if not tag then
+      combat_tag.remove_hud(player)
+      return
+   end
+
    local bg_idx = tag_hud_bg[pname]
    local title_idx = tag_hud_title[pname]
    local bar_idx = tag_hud_bar[pname]
-
-   if not tag then
-      player:hud_remove(title_idx)
-      player:hud_remove(bg_idx)
-      player:hud_remove(bar_idx)
-
-      tag_hud_title[pname] = nil
-      tag_hud_bg[pname] = nil
-      tag_hud_bar[pname] = nil
-      return
-   end
 
    if not bg_idx then
       local bg_new_idx = player:hud_add({
