@@ -1,9 +1,13 @@
 
 -- CombatTag
 
-local COMBAT_TAG_TIMER = 30
+combat_tag.COMBAT_TAG_TIMER = 30
 
 function combat_tag.get_tag(player)
+   if not player then
+      return nil
+   end
+
    local meta = player:get_meta()
    local tag_end = meta:get_int("combat_tag_end")
    if tag_end == 0 then
@@ -19,6 +23,10 @@ function combat_tag.get_tag(player)
 end
 
 function combat_tag.tag(player, length)
+   if not player then
+      return
+   end
+
    local player_tag_end = combat_tag.get_tag(player)
    if not player_tag_end then
       minetest.chat_send_player(
@@ -32,6 +40,7 @@ function combat_tag.tag(player, length)
       "combat_tag_end",
       os.time(os.date("!*t")) + length
    )
+   combat_tag.update_hud(player)
 end
 
 minetest.register_on_punchplayer(
@@ -40,10 +49,10 @@ minetest.register_on_punchplayer(
          return
       end
       if minetest.is_player(target) then
-         combat_tag.tag(target, COMBAT_TAG_TIMER)
+         combat_tag.tag(target, combat_tag.COMBAT_TAG_TIMER)
       end
       if minetest.is_player(hitter) then
-         combat_tag.tag(hitter, COMBAT_TAG_TIMER)
+         combat_tag.tag(hitter, combat_tag.COMBAT_TAG_TIMER)
       end
 end)
 
