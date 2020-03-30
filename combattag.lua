@@ -9,8 +9,9 @@ function combat_tag.get_tag(player)
    end
 
    local meta = player:get_meta()
+   local tag_exempt = meta:get("combat_tag_exempt")
    local tag_end = meta:get_int("combat_tag_end")
-   if tag_end == 0 then
+   if tag_exempt or tag_end <= 0 then
       return nil
    end
 
@@ -20,6 +21,15 @@ function combat_tag.get_tag(player)
    else
       return tag_end - current_time
    end
+end
+
+function combat_tag.make_exempt(player)
+   if not player then
+      return
+   end
+   local meta = player:get_meta()
+   meta:set_string("combat_tag_exempt", "true")
+   meta:set_int("combat_tag_end", 0)
 end
 
 function combat_tag.tag(player, length)
@@ -58,6 +68,10 @@ end)
 
 minetest.register_on_joinplayer(function(player)
       if player:get_hp() > 0 then
+         local meta = player:get_meta()
+         if meta:get("combat_tag_exempt") then
+            return
+         end
          combat_tag.tag(player, 5)
       end
 end)
