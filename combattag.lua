@@ -93,11 +93,11 @@ minetest.register_on_punchplayer(
 end)
 
 minetest.register_on_joinplayer(function(player)
-    local dead_list_str = storage:get_string("dead_list") 
+    local dead_list_str = storage:get_string("dead_list")
     if not dead_list_str then dead_list_str = "" end
 
     local dead_list = minetest.deserialize(dead_list_str)
-    if not dead_list then 
+    if not dead_list then
         dead_list = {}
         storage:set_string("dead_list", minetest.serialize(dead_list))
     end
@@ -133,7 +133,7 @@ minetest.register_on_joinplayer(function(player)
     -- if found for this player, remove and take its tag duration and add it to the default
     for _,obj in ipairs(minetest.get_objects_inside_radius(player:get_pos(), 1)) do
         local entity = obj:get_luaentity()
-        if entity and entity.name == "combattagmt:tagplayer" and 
+        if entity and entity.name == "combattagmt:tagplayer" and
                 entity.playername == pname then
             local timeleft = combat_tag.get_tag(obj)
             if timeleft ~= nil then
@@ -149,7 +149,7 @@ minetest.register_on_joinplayer(function(player)
     end
 end)
 
-local TagPlayer = {
+TagPlayer = {
     initial_properties = {
         hp_max = 20,
         is_visible = true,
@@ -186,7 +186,7 @@ function TagPlayer:on_step(dtime)
     if self.interval < 1.0 then
         return
     end
-    
+
     local obj = self.object
     if not combat_tag.get_tag(obj) then
         obj:remove()
@@ -195,7 +195,16 @@ end
 
 
 function TagPlayer:on_activate(staticdata, dtime)
-    local attribs = minetest.parse_json(staticdata) or {}
+    local attribs = minetest.parse_json(staticdata)
+    if not attribs then
+       minetest.log(
+          "warning", "Removed buggy TagPlayer at "
+             .. minetest.pos_to_string(self.object:get_pos())
+       )
+       self.object:remove()
+       return
+    end
+
     local player = minetest.get_player_by_name(attribs.name)
     local pp = player:get_properties()
 
@@ -250,7 +259,7 @@ local function combatlog_effect(player, time)
    )
 
    local ent = minetest.add_entity(
-       ppos, 
+       ppos,
        "combattagmt:tagplayer",
        minetest.write_json({name=player:get_player_name(), time=time + current_time})
    )
